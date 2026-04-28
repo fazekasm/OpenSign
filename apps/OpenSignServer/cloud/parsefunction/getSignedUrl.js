@@ -8,7 +8,7 @@ dotenv.config({ quiet: true });
 
 function extractKeyFromUrl(url) {
   // Create a new URL object
-  const parsedUrl = new URL(url);
+  const parsedUrl = new UR(url);
   // Get the pathname of the URL
   const pathname = parsedUrl.pathname; // e.g. /mybucket/path/to/file.pdf (depends on baseUrl style)
   // Extract the filename from the pathname
@@ -54,7 +54,7 @@ export default async function getPresignedUrl(url) {
 
     const command = new GetObjectCommand({ Bucket: bucket, Key: key });
     // Expires: 160 seconds
-    const expiresIn = 160;
+    const expiresIn = parseInt(process.env.FILE_TOKEN_TTL) || 3600;
 
     // presignedGETURL return presignedUrl with expires time
     const presignedGETURL = await presign(client, command, { expiresIn });
@@ -128,7 +128,7 @@ export async function getSignedUrl(request) {
 // Function to generate a signed URL with JWT
 export function getSignedLocalUrl(fileUrl, expirationTimeInSeconds) {
   const secretKey = process.env.MASTER_KEY;
-  const exp = expirationTimeInSeconds || 200;
+  const exp = expirationTimeInSeconds || parseInt(process.env.FILE_TOKEN_TTL) || 3600;
   try {
     // Create the payload with the file URL and expiration time
     const payload = {
@@ -150,7 +150,7 @@ export function presignedlocalUrl(signedUrl, expirationTimeInSeconds) {
   if (signedUrl?.includes('files')) {
     const fileUrl = signedUrl.split('?')?.[0];
     const secretKey = process.env.MASTER_KEY;
-    const exp = expirationTimeInSeconds || 200;
+    const exp = expirationTimeInSeconds || parseInt(process.env.FILE_TOKEN_TTL) || 3600;
     try {
       // Create the payload with the file URL and expiration time
       const payload = {
